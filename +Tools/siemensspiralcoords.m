@@ -70,7 +70,7 @@ Hubs = twix_obj.hdr.MeasYaps.sWipMemBlock.alFree{Hubs_Loc};
 try
     Nucleus = twix_obj.hdr.Spice.ResonantNucleus;
 catch
-    if ~strcmp(twix_obj.hdr.Dicom.TransmittingCoil,'129Xe_Vest')
+    if ~contains(twix_obj.hdr.Dicom.TransmittingCoil,'129Xe') %RH: scanner reports 'Vest_129Xe', not '129Xe_Vest'
         Nucleus = '1H';
     else
         Nucleus = '129Xe';
@@ -204,13 +204,15 @@ elseif Ordering == 2 && SType == 0
 end
 
 traj = -traj;
-%% Confirm match 
-% nsamp = size(coords,2);
-% %match data points from parameter file or real data
-% if (numREADPTS > 0) && (nsamp > numREADPTS)
-%     coords = coords(:,1:numREADPTS,:,:);
-% end
-
+%% Confirm match
+%RH: re-enabled - bnispiralgen's theoretical readout length doesn't always match
+%the actual number of acquired ADC samples (twix_obj.image.NCol), which crashes
+%downstream gridding (grid3_MAT) on a size mismatch between traj and data/DCF.
+nsamp = size(traj,2);
+numREADPTS = twix_obj.image.NCol;
+if (numREADPTS > 0) && (nsamp > numREADPTS)
+    traj = traj(:,1:numREADPTS,:,:);
+end
 
 %traj = coords;
 

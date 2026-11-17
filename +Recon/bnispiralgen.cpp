@@ -136,6 +136,7 @@
 #define GRAST    0.010 /* Desired gradient raster time (ms) */ //PJN - for Siemens, Minimum gradient raster time is 10 us
 #define subrast    5      /* number of numerical cycles per gradient raster time */ 
 
+//RH: compiled bnispiralgen.mexmaca64 (macOS arm64) from this source, was missing - only .mexa64/.mexw64 existed
 //#include "bnispiralgmn_Shape.cpp"
 #include "spiralfill.cpp"
 #include "mex.h" //add for mex MMW May 2019

@@ -59,7 +59,7 @@ end
 try
     Im_Nuc = image_twix.hdr.Spice.ResonantNucleus;
 catch
-    if ~strcmp(image_twix.hdr.Dicom.TransmittingCoil,'129Xe_Vest')
+    if ~contains(image_twix.hdr.Dicom.TransmittingCoil,'129Xe') %RH: scanner reports 'Vest_129Xe', not '129Xe_Vest'
         Im_Nuc = '1H';
     else
         Im_Nuc = '129Xe';

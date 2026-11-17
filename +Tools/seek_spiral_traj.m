@@ -41,7 +41,7 @@ if ~isempty(all_traj)
     %% Compare parameters in twix header - probably not great:
     if isnan(proper_traj)
         for i = 1:length(all_traj)
-            traj_twix = mapVBVD(fullfile(parent_path,'Traj',all_traj(i).name));
+            traj_twix = Import.mapVBVD(fullfile(parent_path,'Traj',all_traj(i).name)); %RH: qualify package call
             if length(traj_twix)>1
                 traj_twix = traj_twix{2};
             end
@@ -57,7 +57,7 @@ end
 %no longer nan, so we can read in trajectories. Otherwise, we'll have to
 %calculate theoretical
 if ~isnan(proper_traj)
-    traj_twix = mapVBVD(fullfile(parent_path,'Traj',all_traj(proper_traj).name));
+    traj_twix = Import.mapVBVD(fullfile(parent_path,'Traj',all_traj(proper_traj).name)); %RH: qualify package call
     if length(traj_twix)>1
         traj_twix = traj_twix{2};
     end

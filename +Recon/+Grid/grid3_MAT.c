@@ -16,6 +16,7 @@
  **************************************************************************/
 
 /************************************************************************** EXTERNAL LIBS */
+//RH: compiled grid3_MAT.mexmaca64 (macOS arm64) from this source with `mex -compatibleArrayDims`, was missing - only .mexa64/.mexw64 existed. Flag needed for the same reason as sdc3_MAT.c (32-bit dims assumption).
 #include "mex.h"
 
 #include <math.h>

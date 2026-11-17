@@ -28,7 +28,7 @@ function twix_obj = mapVBVD(filename,varargin)
 %           correction (currently only supported for VB software version).
 %  15.01.13 Thanks to Zhitao Li for proper handling of SYNCDATA.
 %  Philipp Ehses 28.08.13, added support for VD13 multi-raid files
-%  Michael Völker May-Aug 15 * Better error tolerance with incomplete files.
+%  Michael Vï¿½lker May-Aug 15 * Better error tolerance with incomplete files.
 %                          * Swapped out parsing loop into a separate function
 %                            without access to twix object (no thousands of subsref calls).
 %                          * For parsing, use an as-minimalistic-as-possible loop
@@ -369,23 +369,24 @@ for s=1:NScans
     % read header and calculate regridding (optional)
     rstraj = [];
     if arg.bReadHeader
-        [twix_obj{s}.hdr,rstraj] = read_twix_hdr(fid);
+        [twix_obj{s}.hdr,rstraj] = Import.read_twix_hdr(fid); %RH: qualify package call
     end
 
     % declare data objects:
-    twix_obj{s}.image         = twix_map_obj(arg,'image',filename,version,rstraj);
-    twix_obj{s}.noise         = twix_map_obj(arg,'noise',filename,version);
-    twix_obj{s}.phasecor      = twix_map_obj(arg,'phasecor',filename,version,rstraj);
-    twix_obj{s}.phasestab     = twix_map_obj(arg,'phasestab',filename,version,rstraj);
-    twix_obj{s}.phasestabRef0 = twix_map_obj(arg,'phasestab_ref0',filename,version,rstraj);
-    twix_obj{s}.phasestabRef1 = twix_map_obj(arg,'phasestab_ref1',filename,version,rstraj);
-    twix_obj{s}.refscan       = twix_map_obj(arg,'refscan',filename,version,rstraj);
-    twix_obj{s}.refscanPC     = twix_map_obj(arg,'refscan_phasecor',filename,version,rstraj);
-    twix_obj{s}.refscanPS     = twix_map_obj(arg,'refscan_phasestab',filename,version,rstraj);
-    twix_obj{s}.refscanPSRef0 = twix_map_obj(arg,'refscan_phasestab_ref0',filename,version,rstraj);
-    twix_obj{s}.refscanPSRef1 = twix_map_obj(arg,'refscan_phasestab_ref1',filename,version,rstraj);
-    twix_obj{s}.RTfeedback    = twix_map_obj(arg,'rtfeedback',filename,version,rstraj);
-    twix_obj{s}.vop           = twix_map_obj(arg,'vop',filename,version); % tx-array rf pulses
+    %RH: qualify twix_map_obj calls with package name below
+    twix_obj{s}.image         = Import.twix_map_obj(arg,'image',filename,version,rstraj);
+    twix_obj{s}.noise         = Import.twix_map_obj(arg,'noise',filename,version);
+    twix_obj{s}.phasecor      = Import.twix_map_obj(arg,'phasecor',filename,version,rstraj);
+    twix_obj{s}.phasestab     = Import.twix_map_obj(arg,'phasestab',filename,version,rstraj);
+    twix_obj{s}.phasestabRef0 = Import.twix_map_obj(arg,'phasestab_ref0',filename,version,rstraj);
+    twix_obj{s}.phasestabRef1 = Import.twix_map_obj(arg,'phasestab_ref1',filename,version,rstraj);
+    twix_obj{s}.refscan       = Import.twix_map_obj(arg,'refscan',filename,version,rstraj);
+    twix_obj{s}.refscanPC     = Import.twix_map_obj(arg,'refscan_phasecor',filename,version,rstraj);
+    twix_obj{s}.refscanPS     = Import.twix_map_obj(arg,'refscan_phasestab',filename,version,rstraj);
+    twix_obj{s}.refscanPSRef0 = Import.twix_map_obj(arg,'refscan_phasestab_ref0',filename,version,rstraj);
+    twix_obj{s}.refscanPSRef1 = Import.twix_map_obj(arg,'refscan_phasestab_ref1',filename,version,rstraj);
+    twix_obj{s}.RTfeedback    = Import.twix_map_obj(arg,'rtfeedback',filename,version,rstraj);
+    twix_obj{s}.vop           = Import.twix_map_obj(arg,'vop',filename,version); % tx-array rf pulses
 
     % jump to first mdh
     cPos = cPos + hdr_len;

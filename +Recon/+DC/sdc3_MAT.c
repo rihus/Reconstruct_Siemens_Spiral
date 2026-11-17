@@ -16,6 +16,7 @@
  **************************************************************************/
 
 /************************************************************************** EXTERNAL LIBS */
+//RH: compiled sdc3_MAT.mexmaca64 (macOS arm64) from this source with `mex -compatibleArrayDims`, was missing - only .mexa64/.mexw64 existed. The -compatibleArrayDims flag is required because this file assumes 32-bit dims (int *dims = mxGetDimensions(...)), which mismatches the default 64-bit mwSize on modern mex builds.
 #include "mex.h"
 
 #include <math.h>

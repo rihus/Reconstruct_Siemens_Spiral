@@ -2,6 +2,18 @@ function reconstruct_spiral(file)
 
 %Function to Reconstruct Spiral Data from SPIRAL sequence created by Peter
 %Niedbalski for Siemens Skyra scanner.
+%Edited by Riaz Hussain to make it work on Mac and Siemens Prisma scanner
+
+%RH: prompt for the twix file if none was passed in
+if nargin < 1 || isempty(file)
+    [fname,fpath] = uigetfile('*.dat','Select twix (.dat) file');
+    if isequal(fname,0)
+        error('reconstruct_spiral:noFile','No file selected.');
+    end
+    file = fullfile(fpath,fname);
+end
+
+file = char(file);%RH: allow string ("...") or char ('...') input
 
 %% Get some path information - where to save images, where to pull some ancillary info from
 idcs = strfind(file,filesep);%determine location of file separators
@@ -57,9 +69,10 @@ try
         raw = permute(raw,[1 3 4 2]);
     end
 catch
-    if ~strcmp(twix_obj.hdr.Dicom.TransmittingCoil,'129Xe_Vest') && Dim == 1 && ndims(raw) > 2
+    %RH: match any '129Xe' coil name (scanner reports 'Vest_129Xe', not '129Xe_Vest')
+    if ~contains(twix_obj.hdr.Dicom.TransmittingCoil,'129Xe') && Dim == 1 && ndims(raw) > 2
         raw = permute(raw,[1,3,2]);
-    elseif ~strcmp(twix_obj.hdr.Dicom.TransmittingCoil,'129Xe_Vest') && Dim == 0 
+    elseif ~contains(twix_obj.hdr.Dicom.TransmittingCoil,'129Xe') && Dim == 0
         raw = permute(raw,[1 3 4 2]);
     end
 end
@@ -89,13 +102,17 @@ if Dim == 1
     for i = 1:size(raw,3)
         Image(:,:,:,i) = Recon.pipe_recon(ImSize,raw(:,:,i),traj,DCF,i,size(raw,3));
         %If this is xenon, each image matters, so write out as we go:
-        try
-            if ~strcmp(twix_obj.hdr.Spice.ResonantNucleus,'1H')
-                niftiwrite(squeeze(abs(Image(:,:,:,i))),fullfile(write_path,['Reconstructed_Image_for_Index_' num2str(i)]),'Compressed',true);
-            end
-        catch
-            if strcmp(twix_obj.hdr.Dicom.TransmittingCoil,'129Xe_Vest')
-                niftiwrite(squeeze(abs(Image(:,:,:,i))),fullfile(write_path,['Reconstructed_Image_for_Index_' num2str(i)]),'Compressed',true);
+        %RH: skip when there's only one index - the final combined write below
+        %covers that case already, and writing both is a redundant duplicate.
+        if size(raw,3) > 1
+            try
+                if ~strcmp(twix_obj.hdr.Spice.ResonantNucleus,'1H')
+                    niftiwrite(squeeze(abs(Image(:,:,:,i))),fullfile(write_path,['Reconstructed_Image_for_Index_' num2str(i)]),'Compressed',true);
+                end
+            catch
+                if contains(twix_obj.hdr.Dicom.TransmittingCoil,'129Xe') %RH: see coil-name note above
+                    niftiwrite(squeeze(abs(Image(:,:,:,i))),fullfile(write_path,['Reconstructed_Image_for_Index_' num2str(i)]),'Compressed',true);
+                end
             end
         end
     end
@@ -106,10 +123,11 @@ if Dim == 1
             niftiwrite(Image,fullfile(write_path,'Reconstructed_Image'),'Compressed',true);
         end
     catch
-        if strcmp(twix_obj.hdr.Dicom.TransmittingCoil,'129Xe_Vest')
-            Image = Tools.soscoilcombine(Image);
-            niftiwrite(Image,fullfile(write_path,'Reconstructed_Image'),'Compressed',true);
-        end
+        %RH: on XA20A, hdr.Spice.ResonantNucleus doesn't exist (hence this catch),
+        %so nucleus can't be positively identified here - write regardless
+        %instead of silently dropping output for non-Xe (e.g. proton) scans.
+        Image = Tools.soscoilcombine(Image);
+        niftiwrite(Image,fullfile(write_path,'Reconstructed_Image'),'Compressed',true);
     end
 else
     %otherwise, loop through coils and slices, doing Robertson
